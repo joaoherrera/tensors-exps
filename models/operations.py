@@ -3,7 +3,6 @@
 
 import numpy as np
 import torch
-from yolov5.models import yolo
 
 
 class Supervision:
