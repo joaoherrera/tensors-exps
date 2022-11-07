@@ -9,12 +9,11 @@ class OrderedCompose:
         for func in self.funcs:
             image, annotations = func(image, annotations)
         
-        return image,annotations
+        return image, annotations
 
 
 class CocoPreprocessing:
-    
     @staticmethod
     def crop(image: np.ndarray, annotations: dict) -> Tuple[np.ndarray, dict]:
         bbox = annotations["bbox"]
-        return image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+        return image[bbox[1]:bbox[3], bbox[0]:bbox[2]], annotations

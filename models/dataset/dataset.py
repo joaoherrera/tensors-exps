@@ -6,6 +6,8 @@ from typing import Callable, Tuple, Any
 import cv2
 import numpy as np
 import torch
+import os
+from torch.utils.data import DataLoader, Dataset
 from dataset.annotations import CocoAnnotations
 
 
@@ -28,24 +30,46 @@ class DatasetUtils:
 
 
 @dataclass
-class CocoDataset(torch.utils.data.Dataset):
+class CocoDataset(Dataset):
     data_directory_path: str
     data_annotation_path: str
     augmentations: Callable = None
     preprocessing: Callable = None
-    seed: Any = math.pi
+    seed: Any = 2022
     
-    def __init__(self) -> None:
+    def __post_init__(self) -> None:
+        torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
+
         super().__init__()
+
         self.tree = CocoAnnotations(self.data_annotation_path)
         self.images = CocoAnnotations.to_dict(self.tree.data["images"], "id")
         self.categories = CocoAnnotations.to_dict(self.tree.data["categories"], "id")
         self.annotations = self.tree.data.get("annotations")
     
-    def __getitem__(self, idx) -> Tuple[np.ndarray, int]:
+    def __getitem__(self, idx) -> Tuple[torch.Tensor, torch.Tensor]:
+        annotation = self.annotations[idx]
+        image_data = self.images[annotation["image_id"]]
+        image_path = os.path.join(self.data_directory_path, image_data["file_name"])
+        image = DatasetUtils.read_image(image_path)
+        
         # apply preprocessing
+        if self.preprocessing is not None:
+            image, annotation = self.preprocessing(image, annotation)
+        
         # apply augmentations
-        pass
+        if self.augmentations is not None:
+            image, annotation = self.augmentations(image, annotation)
+        
+        image = torch.tensor(image, dtype=torch.float32)
+        category = torch.tensor(self.categories[annotation["category_id"]], dtype=torch.int64)
+
+        return image, category
     
     def __len__(self) -> int:
         return len(self.annotations)
+    
+    @classmethod
+    def dataloader(cls, batch_size: int, shuffle: bool) -> DataLoader:
+        return DataLoader(cls, batch_size=batch_size, shuffle=shuffle)

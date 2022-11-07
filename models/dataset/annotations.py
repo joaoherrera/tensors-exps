@@ -28,7 +28,7 @@ class CocoAnnotations:
             raise ValueError("Invalid key")
         
         data_dictionary = {}
-        for key, group in itertools.groupby(data, key_type):
-            data_dictionary[key] = group
+        for key, group in itertools.groupby(data, lambda x: x[key_type]):
+            data_dictionary[key] = list(group)[0]
         
         return data_dictionary
