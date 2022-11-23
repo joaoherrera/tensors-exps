@@ -33,7 +33,10 @@ class Supervision:
                 loss.backward()    # backpropagation
                 optimizer.step()
 
-                loss_training.append(loss.item())
+                loss_value = loss.item()
+                loss_training.append(loss_value)
+                
+                print(f"Training loss: {loss_value}")
         return np.mean(loss_training)
 
     def evaluate(self, dataset, coef_func):
@@ -51,7 +54,10 @@ class Supervision:
                 y_pred = self.model(x_pred)
 
                 coef = coef_func(y_pred, y_true)
-                coef_validation.append(coef.item())
+                coef_value = coef.item()
+                coef_validation.append(coef_value)
+                
+                print(f"Validation loss {coef_value}")
         return np.mean(coef_validation)
 
     def fit(self, training_dataset, validation_dataset, optimizer, loss_func, coef_func):
@@ -62,7 +68,7 @@ class Supervision:
             coef_evalutation = self.evaluate(validation_dataset, coef_func)
 
             print(f"Loss training: {loss_training}")
-            print(f"Coefficient evaluation: {coef_evalutation}")
+            print(f"Loss validation: {coef_evalutation}")
 
 
 class SemiSupervision(Supervision):

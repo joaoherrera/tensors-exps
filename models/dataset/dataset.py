@@ -19,7 +19,7 @@ class DatasetUtils:
         if not os.path.exists(image_path):
             raise ValueError("Path does not exist.")
 
-        return cv2.imread(image_path, read_mode)
+        return cv2.imread(image_path, read_mode).transpose(2, 0, 1)
 
     @staticmethod
     def read_paths(directory_path: str) -> list[str]:
@@ -63,7 +63,7 @@ class CocoDataset(Dataset):
             image, annotation = self.augmentations(image, annotation)
         
         image = torch.tensor(image, dtype=torch.float32)
-        category = torch.tensor(self.categories[annotation["category_id"]], dtype=torch.int64)
+        category = torch.tensor(self.categories[annotation["category_id"]]["id"], dtype=torch.float32)
 
         return image, category
     

@@ -15,5 +15,9 @@ class OrderedCompose:
 class CocoPreprocessing:
     @staticmethod
     def crop(image: np.ndarray, annotations: dict) -> Tuple[np.ndarray, dict]:
-        bbox = annotations["bbox"]
-        return image[bbox[1]:bbox[3], bbox[0]:bbox[2]], annotations
+        bbox = np.array(annotations["bbox"], dtype=np.int32)
+        return image[
+            :, 
+            bbox[1]: (bbox[1] + bbox[3]),
+            bbox[0]: (bbox[0] + bbox[2])
+        ], annotations

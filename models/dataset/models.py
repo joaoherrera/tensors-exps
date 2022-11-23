@@ -9,4 +9,5 @@ class DummyClassifier(torch.nn.Module):
         self.model.fc = torch.nn.Sequential(torch.nn.Linear(self.model.fc.in_features, 1))
         
     def forward(self, x):
-        return torch.sigmoid(self.model(x))
+        return torch.squeeze(torch.sigmoid(self.model(x)))
+    
